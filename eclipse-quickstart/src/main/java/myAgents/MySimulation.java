@@ -1,5 +1,7 @@
 package myAgents;
 
+import myAgents.InteractionHandler;
+import myAgents.RaceEnviromentService;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -9,6 +11,7 @@ import uk.ac.imperial.presage2.core.simulator.InjectedSimulation;
 import uk.ac.imperial.presage2.core.simulator.Parameter;
 import uk.ac.imperial.presage2.core.simulator.Scenario;
 import uk.ac.imperial.presage2.core.util.random.Random;
+import uk.ac.imperial.presage2.rules.RuleModule;
 import uk.ac.imperial.presage2.util.environment.AbstractEnvironmentModule;
 import uk.ac.imperial.presage2.util.location.area.Area;
 import uk.ac.imperial.presage2.util.location.Location;
@@ -38,12 +41,14 @@ public class MySimulation extends InjectedSimulation {
 		// so we add a 2D area
 		modules.add(Area.Bind.area2D(areaSize, areaSize));
 		
-		// an Enviroment with and MoveHandler and ParticipantLocationService
+		// an Environment with a MoveHandler and a ParticipantLocationService
 		modules.add(new AbstractEnvironmentModule()
 				.addActionHandler(MoveHandler.class)
-				.addParticipantEnvironmentService(ParticipantLocationService.class));
-		
-		// and no Network
+				.addActionHandler(InteractionHandler.class)
+				.addParticipantEnvironmentService(ParticipantLocationService.class)
+				.addParticipantGlobalEnvironmentService(RaceEnviromentService.class));
+		modules.add(new RuleModule());
+		// and Network
 		modules.add(NetworkModule.fullyConnectedNetworkModule());
 		
 		return modules;
@@ -51,15 +56,17 @@ public class MySimulation extends InjectedSimulation {
 
 	@Override
 	protected void addToScenario(Scenario s) {
-		int initialX;
-		int initialY;
+		int initialX = 0;
+		int initialY = 0;
 		Location initialLocation;
-		initialX = 0;
-		initialY = 0;
 		initialLocation = new Location(initialX, initialY);
 		for (int i = 0; i < agentsCount; i++) {
 			s.addParticipant(new MyAgent(Random.randomUUID(), "myAgent"+i, initialLocation));
 		}
-		s.addParticipant(new Referee(Random.randomUUID(), "referee", initialLocation));
+		
+		initialX = areaSize;
+		initialY = areaSize;
+		initialLocation = new Location(initialX, initialY);
+		s.addParticipant(new Referee(Random.randomUUID(), "referee", initialLocation, s));
 	}
 }
