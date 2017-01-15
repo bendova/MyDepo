@@ -1,7 +1,6 @@
-New Line 0 updated
+New Line 0
 firstUpdate Line
 New Line 1
 New Line 3
-New Line 4
 New Line 5
 New Line 6
